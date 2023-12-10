@@ -1,0 +1,125 @@
+#basic spring config
+server:
+  port: 8080
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: root
+    password: ''
+  jpa:
+    defer-datasource-initialization: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    database-platform: H2
+  h2:
+    console:
+      enabled: true
+  #  spring cloud config and broker config based on spring cloud stream
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+      bindings:
+        brewBeerInventory-out-0:
+          destination: brew-beer-inventory
+        validateresult-in-0:
+          destination: validation-request
+          group: ${spring.application.name}
+        validateresult-out-0:
+          destination: validation-results
+    function:
+      definition: brewBeerInventory;validate|result
+#eureka config
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+
+# actuator config
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+endpoints:
+  shuwdown:
+    enabled: true
+
+info:
+  application:
+    name: "Cloud config"
+    onCallSupport:
+      - (123) 123456789
+      - (123) 987654321
+    details:
+      madeBy: "Boris Dimitrijevic"
+      email: "borisdimitrijevicit@gmail.com"
+logging:
+  level:
+    com.netflix.hystrix: debug
+    org.springframework.cloud.netflix.feign: debug
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+# every 10 calls it will calculate failure thres hold if it is more then 50% precent it will go to open state from closed
+# while in open state it will wait for 2 second before it go to half open state and in half open state it s gonna be permitted to
+# test api with 2 number of calls if it asceed 50% failure rate it will go back then to open state again
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 2
+      waitDurationInOpenState: 2000
+      failureRateThreshold: 50
+
+# max 3 attemp and max wait duratino is 1second with multiplier enabled and set to multiply by 2 based on previous time
+# and to ignore exception not found exception
+resilience4j.retry:
+  instances:
+    findBeerByUpc:
+      max-attempts: 3
+      exponentialMaxWaitDuration: 1000
+      exponentialBackoffMultiplier: 2
+      wait-duration: 500
+      ignore-exceptions:
+        - com.brewery.beerservice.exceptions.NotFoundException
+
+#this mean every 2 second we will allow 100 calls for this limiter while timeout wil be 1 second
+resilience4j.ratelimiter:
+  instances:
+    findBeerByUpcRateLimiter:
+      limitForPeriod: 100
+      limitRefreshPeriod: 2000
+      timeoutDuration: 1000
+
+inventory.url: http://localhost:8090
+inventory_url: http://localhost:8090
+

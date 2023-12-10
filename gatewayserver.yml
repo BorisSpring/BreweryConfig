@@ -1,0 +1,101 @@
+server:
+  port: 9090
+  #spring cloud config
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 5s
+      filter:
+        circuit-breaker:
+          enabled: true
+  data:
+    redis:
+      port: 6379
+      connect-timeout: 2s
+      host: localhost
+      timeout: 1s
+#eureka config
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    prefer-ip-address: true
+
+
+#actuator config
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+#contact properties with prefi application
+application:
+  name: "Cloud config"
+  onCallSupport:
+    - (123) 123456789
+    - (123) 987654321
+  details:
+    madeBy: "Boris Dimitrijevic"
+    email: "borisdimitrijevicit@gmail.com"
+
+
+#resilience4j config
+
+#default for all circuitbreakrs
+#resilience4j.circuitbreaker:
+#  configs:
+#    default:
+#      slidingWindowSize: 10
+#      failure-rate-threshold: 50
+#      permittedNumberOfCallsInHalfOpenState: 2
+#      waitDurationInOpenState: 5000
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+resilience4j.circuitbreaker:
+  instaces:
+    beersCircuitbreaker:
+      slidingWindowSize: 100
+      permittedNumberOfCallsInHalfOpenState: 10
+      waitDurationInOpenState: 2500
+      failureRateThreshold: 50
+    ordersCircuitbreaker:
+      slidingWindowSize: 500
+      permittedNumberOfCallsInHalfOpenState: 15
+      waitDurationInOpenState: 5000
+      failureRateThreshold: 20
+    inventoryCircuitbreaker:
+      slidingWindowSize: 50
+      permittedNumberOfCallsInHalfOpenState: 20
+      waitDurationInOpenState: 10000
+      failureRateThreshold: 35
+
+
+
