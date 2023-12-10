@@ -27,7 +27,7 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: false
 
 
 #actuator config
