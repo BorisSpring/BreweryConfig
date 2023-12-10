@@ -120,6 +120,5 @@ resilience4j.ratelimiter:
       limitRefreshPeriod: 2000
       timeoutDuration: 1000
 
-inventory.url: http://localhost:8090
-inventory_url: http://localhost:8090
 
+inventoryurl: http://localhost:8090
