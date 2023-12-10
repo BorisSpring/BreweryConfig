@@ -33,7 +33,7 @@ info:
       email: "borisdimitrijevicit@gmail.com"
 eureka:
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: false
     hostname: localhost
   client:
     fetch-registry: false
