@@ -1,5 +1,4 @@
-server:
-  port: 9000
+spring:
   h2:
     console:
       enabled: true
@@ -82,3 +81,4 @@ beerserviceurl: http://localhost:8080
 logging:
   pattern:
     level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
